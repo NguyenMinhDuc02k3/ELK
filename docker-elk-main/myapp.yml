@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  worker:
+    image: minhduc2k3/worker:coinswarm
+    networks:
+      - coinswarmnet
+  rng:
+    image: minhduc2k3/rng:coinswarm
+    networks:
+      - coinswarmnet
+  hasher:
+    image: minhduc2k3/hasher:coinswarm
+    networks:
+      - coinswarmnet
+  redis:
+    image: redis:latest
+    networks:
+      - coinswarmnet
+  webui:
+    image: minhduc2k3/webui:coinswarm
+    networks:
+      - coinswarmnet
+
+networks:
+  coinswarmnet:
+    external: true  # Sử dụng mạng Swarm hiện có
