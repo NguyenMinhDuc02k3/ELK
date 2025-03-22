@@ -116,3 +116,6 @@ networks:
 volumes:
   elasticsearch:
     driver: local  # Nếu multi-node, dùng NFS
+configs:
+  filebeat_config:
+    file: ./filebeat.yml
