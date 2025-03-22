@@ -79,23 +79,23 @@ services:
       restart_policy:
         condition: any 
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}  # Giữ nguyên vì đây là image chính thức
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    configs:
-      - source: filebeat_config
-        target: /usr/share/filebeat/filebeat.yml
-    environment:
-      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
-    networks:
-      - coinswarmnet
-    depends_on:
-      - logstash
-    deploy:
-      mode: global  # Chạy trên mọi node
-      restart_policy:
-        condition: any 
+filebeat:
+  image: docker.elastic.co/beats/filebeat:8.12.0  # Cố định tag, ví dụ 8.12.0
+  volumes:
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  configs:
+    - source: filebeat_config
+      target: /usr/share/filebeat/filebeat.yml
+  environment:
+    FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+  networks:
+    - coinswarmnet
+  depends_on:
+    - logstash
+  deploy:
+    mode: global
+    restart_policy:
+      condition: any
 
 networks:
   coinswarmnet:
