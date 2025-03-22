@@ -45,7 +45,7 @@ services:
       - coinswarmnet
     deploy:
       restart_policy:
-        condition: unless-stopped
+        condition: any
 
   logstash:
     build:
@@ -70,8 +70,7 @@ services:
     deploy:
       mode: global  # Chạy trên mọi node
       restart_policy:
-        condition: unless-stopped
-
+        condition: any
   kibana:
     build:
       context: kibana/
@@ -89,7 +88,7 @@ services:
       - elasticsearch
     deploy:
       restart_policy:
-        condition: unless-stopped
+        condition: any 
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}
@@ -107,7 +106,7 @@ services:
     deploy:
       mode: global  # Chạy trên mọi node
       restart_policy:
-        condition: unless-stopped
+        condition: any 
 
 networks:
   coinswarmnet:
