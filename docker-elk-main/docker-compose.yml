@@ -1,9 +1,8 @@
 version: '3.7'
 
 services:
-  # Dịch vụ setup: Chạy thủ công lần đầu để khởi tạo user/role
   setup:
-    image: minhduc2k3/setup:latest  # Sử dụng image đã build sẵn
+    image: minhduc2k3/setup:latest
     init: true
     volumes:
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
@@ -24,7 +23,7 @@ services:
       - elasticsearch
 
   elasticsearch:
-    image: minhduc2k3/elasticsearch:latest  # Sử dụng image đã build sẵn
+    image: minhduc2k3/elasticsearch:latest
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data:Z
     ports:
@@ -32,7 +31,7 @@ services:
       - "9300:9300"
     environment:
       node.name: elasticsearch
-      ES_JAVA_OPTS: -Xms512m -Xmx512m  # Điều chỉnh theo RAM
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       discovery.type: single-node
     networks:
@@ -42,7 +41,7 @@ services:
         condition: any
 
   logstash:
-    image: minhduc2k3/logstash:latest  # Sử dụng image đã build sẵn
+    image: minhduc2k3/logstash:latest
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
@@ -52,19 +51,19 @@ services:
       - "50000:50000/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: -Xms256m -Xmx256m  # Điều chỉnh theo RAM
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
       - coinswarmnet
     depends_on:
       - elasticsearch
     deploy:
-      mode: global  # Chạy trên mọi node
+      mode: global
       restart_policy:
         condition: any
 
   kibana:
-    image: minhduc2k3/kibana:latest  # Sử dụng image đã build sẵn
+    image: minhduc2k3/kibana:latest
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
@@ -79,31 +78,31 @@ services:
       restart_policy:
         condition: any 
 
-filebeat:
-  image: docker.elastic.co/beats/filebeat:8.12.0  # Cố định tag, ví dụ 8.12.0
-  volumes:
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  configs:
-    - source: filebeat_config
-      target: /usr/share/filebeat/filebeat.yml
-  environment:
-    FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
-  networks:
-    - coinswarmnet
-  depends_on:
-    - logstash
-  deploy:
-    mode: global
-    restart_policy:
-      condition: any
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    configs:
+      - source: filebeat_config
+        target: /usr/share/filebeat/filebeat.yml
+    environment:
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+    networks:
+      - coinswarmnet
+    depends_on:
+      - logstash
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any 
 
 networks:
   coinswarmnet:
-    external: true  # Sử dụng mạng Swarm hiện có
+    external: true
 
 volumes:
   elasticsearch:
-    driver: local  # Nếu multi-node, dùng NFS
+    driver: local
 
 configs:
   filebeat_config:
