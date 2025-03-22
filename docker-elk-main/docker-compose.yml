@@ -3,10 +3,7 @@ version: '3.7'
 services:
   # Dịch vụ setup: Chạy thủ công lần đầu để khởi tạo user/role
   setup:
-    build:
-      context: setup/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    image: minhduc2k3/setup:latest  # Sử dụng image đã build sẵn
     init: true
     volumes:
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
@@ -27,10 +24,7 @@ services:
       - elasticsearch
 
   elasticsearch:
-    build:
-      context: elasticsearch/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    image: minhduc2k3/elasticsearch:latest  # Sử dụng image đã build sẵn
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data:Z
     ports:
@@ -48,10 +42,7 @@ services:
         condition: any
 
   logstash:
-    build:
-      context: logstash/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    image: minhduc2k3/logstash:latest  # Sử dụng image đã build sẵn
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
@@ -71,11 +62,9 @@ services:
       mode: global  # Chạy trên mọi node
       restart_policy:
         condition: any
+
   kibana:
-    build:
-      context: kibana/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    image: minhduc2k3/kibana:latest  # Sử dụng image đã build sẵn
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
@@ -91,7 +80,7 @@ services:
         condition: any 
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}
+    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION}  # Giữ nguyên vì đây là image chính thức
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     configs:
@@ -115,6 +104,7 @@ networks:
 volumes:
   elasticsearch:
     driver: local  # Nếu multi-node, dùng NFS
+
 configs:
   filebeat_config:
     file: ./filebeat.yml
